@@ -44,11 +44,13 @@ class CreateAction extends Action
             'scenario' => $this->scenario,
         ]);
 
-		$modelItem = new \app\models\NewsItem;
+		#NewsItem || newsItem 不区分大小写
+		$modelItem = str_ireplace($this->controller->id, $model->relations(), $this->modelClass);
+		$modelItem = new $modelItem;
 
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-		$newsItem = Yii::$app->getRequest()->getBodyParams()['newsItem'];
-		$modelItem->load($newsItem, '');
+		$modelItemParam = Yii::$app->getRequest()->getBodyParams()[$model->relations()];
+		$modelItem->load($modelItemParam, '');
         if ($model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);

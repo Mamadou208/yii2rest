@@ -28,9 +28,13 @@ class DeleteAction extends Action
             call_user_func($this->checkAccess, $this->id, $model);
         }
 
-        $model->delete();
-		$model->newsItem->delete();
-
+		$itemRelation = $model->relations(); 
+		if($model->delete()) {
+			if($itemRelation) {
+				$model->$itemRelation->delete();
+			}
+		}
+		
         Yii::$app->getResponse()->setStatusCode(204);
     }
 }
