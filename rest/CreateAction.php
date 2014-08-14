@@ -51,22 +51,37 @@ class CreateAction extends Action
 		}else{
 			$requestBody = Yii::$app->getRequest()->getBodyParams();
 		}
+		$itemParam = array_diff_key($requestBody, $model->attributes);
 		#NewsItem || newsItem 不区分大小写
-		$modelItem = str_ireplace($this->controller->id, $model->relations(), $this->modelClass);
-		$modelItem = new $modelItem;
+		if($model->relations() && $itemParam)
+		{
+			//itemModel no exists or request params not include itemModel
+			$modelItem = str_ireplace($this->controller->id, $model->relations(), $this->modelClass);
+			$modelItem = new $modelItem;
 
-        $model->load($requestBody, '');
-		$modelItemParam = $requestBody[$model->relations()];
-		$modelItem->load($modelItemParam, '');
-        if ($model->save()) {
-            $response = Yii::$app->getResponse();
-            $response->setStatusCode(201);
-            $id = implode(',', array_values($model->getPrimaryKey(true)));
-			$foreignKey = $model->foreignKey();
-			$modelItem->$foreignKey = $id;
-			$modelItem->save();
-            $response->getHeaders()->set('Location', Url::toRoute([$this->viewAction, 'id' => $id], true));
-        }
+			$model->load($requestBody, '');
+			$modelItemParam = $requestBody[$model->relations()];
+			$modelItem->load($modelItemParam, '');
+			if ($model->save()) {
+				$response = Yii::$app->getResponse();
+				$response->setStatusCode(201);
+				$id = implode(',', array_values($model->getPrimaryKey(true)));
+				$foreignKey = $model->foreignKey();
+				$modelItem->$foreignKey = $id;
+				$modelItem->save();
+				$response->getHeaders()->set('Location', Url::toRoute([$this->viewAction, 'id' => $id], true));
+			}
+		}
+		else
+		{
+			$model->load($requestBody, '');
+			if ($model->save()) {
+				$response = Yii::$app->getResponse();
+				$response->setStatusCode(201);
+				$id = implode(',', array_values($model->getPrimaryKey(true)));
+				$response->getHeaders()->set('Location', Url::toRoute([$this->viewAction, 'id' => $id], true));
+			}
+		}
 
         return $model;
     }

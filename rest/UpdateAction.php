@@ -54,6 +54,7 @@ class UpdateAction extends Action
 		 */
 		if(0 === strpos(Yii::$app->getRequest()->getContentType(), 'application/json'))
 		{
+			//when request Content-Type is JSON
 			$requestBody = Yii::$app->getRequest()->getRawBody();
 			$requestBody = json_decode($requestBody, true);
 		}else{
@@ -61,13 +62,33 @@ class UpdateAction extends Action
 		}
 		$model->load($requestBody, '');
 		$itemParam = array_diff_key($requestBody, $model->attributes);
-		$itemModel = array_keys($itemParam)[0];
-		$itemRelation = $model->relations(); 
 		if($model->save())
 		{
-			if($itemParam && $itemModel == $itemRelation) {
-				$model->$itemModel->load($itemParam[$itemModel], '');
-				$model->$itemModel->save();
+			if($itemParam)
+			{
+				//if request content include itemModel related params
+				$itemModel = array_keys($itemParam)[0];
+				$itemRelation = $model->relations(); 
+				if($itemModel == $itemRelation)
+				{
+					if($model->$itemModel)
+					{
+						//if itemModel was created when ites parent model created
+						$model->$itemModel->load($itemParam[$itemModel], '');
+						$model->$itemModel->save();
+					}
+					else
+					{
+						//if itemModel was not created when its parent model created
+						$modelItem = str_ireplace($this->controller->id, $model->relations(), $this->modelClass);
+						$modelItem = new $modelItem;
+						$modelItem->load($itemParam[$itemModel], '');
+						$foreignKey = $model->foreignKey();
+						$id = implode(',', array_values($model->getPrimaryKey(true)));
+						$modelItem->$foreignKey = $id;
+						$modelItem->save();
+					}
+				}
 			}
 		}
 
