@@ -44,12 +44,19 @@ class CreateAction extends Action
             'scenario' => $this->scenario,
         ]);
 
+		if(0 === strpos(Yii::$app->getRequest()->getContentType(), 'application/json'))
+		{
+			$requestBody = Yii::$app->getRequest()->getRawBody();
+			$requestBody = json_decode($requestBody, true);
+		}else{
+			$requestBody = Yii::$app->getRequest()->getBodyParams();
+		}
 		#NewsItem || newsItem 不区分大小写
 		$modelItem = str_ireplace($this->controller->id, $model->relations(), $this->modelClass);
 		$modelItem = new $modelItem;
 
-        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-		$modelItemParam = Yii::$app->getRequest()->getBodyParams()[$model->relations()];
+        $model->load($requestBody, '');
+		$modelItemParam = $requestBody[$model->relations()];
 		$modelItem->load($modelItemParam, '');
         if ($model->save()) {
             $response = Yii::$app->getResponse();

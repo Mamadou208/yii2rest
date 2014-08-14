@@ -49,7 +49,6 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
-		print_R(Yii::$app->urlManager);exit;
         return $this->render('index');
     }
 

@@ -52,9 +52,15 @@ class UpdateAction extends Action
 		 * don't use newsItem=>{"title":"ttttttt","body":"bbbbbbbb"}
 		 *
 		 */
-		$params = Yii::$app->getRequest()->getBodyParams();
-		$model->load($params, '');
-		$itemParam = array_diff_key($params, $model->attributes);
+		if(0 === strpos(Yii::$app->getRequest()->getContentType(), 'application/json'))
+		{
+			$requestBody = Yii::$app->getRequest()->getRawBody();
+			$requestBody = json_decode($requestBody, true);
+		}else{
+			$requestBody = Yii::$app->getRequest()->getBodyParams();
+		}
+		$model->load($requestBody, '');
+		$itemParam = array_diff_key($requestBody, $model->attributes);
 		$itemModel = array_keys($itemParam)[0];
 		$itemRelation = $model->relations(); 
 		if($model->save())
