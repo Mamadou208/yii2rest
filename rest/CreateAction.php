@@ -62,7 +62,8 @@ class CreateAction extends Action
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
             $id = implode(',', array_values($model->getPrimaryKey(true)));
-			$modelItem->header_id = $id;
+			$foreignKey = $model->foreignKey();
+			$modelItem->$foreignKey = $id;
 			$modelItem->save();
             $response->getHeaders()->set('Location', Url::toRoute([$this->viewAction, 'id' => $id], true));
         }
