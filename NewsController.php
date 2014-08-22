@@ -51,8 +51,8 @@ class NewsController extends ActiveController
 				'class' => CompositeAuth::className(),
 				#`authMethods` 中的每一个元素都应该是 一种 认证方式的类或者一个 配置数组
 				'authMethods' => [
-					HttpBasicAuth::className(),
-					HttpBearerAuth::className(),
+					//HttpBasicAuth::className(),
+					//HttpBearerAuth::className(),
 					QueryParamAuth::className(),
 				]
 			],

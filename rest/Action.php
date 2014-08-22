@@ -11,6 +11,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecordInterface;
 use yii\web\NotFoundHttpException;
+use app\models\User2;
 
 /**
  * Action is the base class for action classes that implement RESTful API.
@@ -100,4 +101,12 @@ class Action extends \yii\base\Action
             throw new NotFoundHttpException("Object not found: $id");
         }
     }
+
+	public function afterRun()
+	{
+		/**
+		 * update user's last_login_time and last_login_ip
+		 */
+		Yii::$app->user->identity->updateAccessInfo();
+	}
 }
