@@ -4,12 +4,11 @@ namespace app\controllers;
 
 use yii\rest\ActiveController;
 
-use yii\filters\auth\HttpBasicAuth;
+use app\controllers\filters\auth\HttpBasicAuth;
 use yii\helpers\ArrayHelper;
-#use yii\filters\auth\CompositeAuth;
-use yii\filters\auth\HttpBasciAuth;
-#use yii\filters\auth\HttpBearerAuth;
-#use yii\filters\auth\QueryParamAuth;
+//use app\controllers\filters\auth\CompositeAuth;
+//use app\controllers\filters\auth\HttpBearerAuth;
+//use app\controllers\filters\auth\QueryParamAuth
 
 
 class UsersController extends ActiveController

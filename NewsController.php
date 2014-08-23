@@ -4,11 +4,11 @@ namespace app\controllers;
 
 use app\controllers\rest\ActiveController;
 
-use yii\filters\auth\HttpBasicAuth;
+//use app\controllers\filters\auth\HttpBasicAuth;
 use yii\helpers\ArrayHelper;
-use yii\filters\auth\CompositeAuth;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\auth\QueryParamAuth;
+use app\controllers\filters\auth\CompositeAuth;
+//use app\controllers\filters\auth\HttpBearerAuth;
+use app\controllers\filters\auth\QueryParamAuth;
 
 use yii\filters\VerbFilter;
 use yii\filters\ContentNegotiator;
