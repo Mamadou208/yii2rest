@@ -58,10 +58,18 @@ class HttpBasicAuth extends AuthMethod
 	public $auth;
 
 	public function auth ($username, $password) {
-		return \app\models\User2::findOne([
+		$user =  \app\models\User2::findOne([
 			'username' => $username,
-			'password_hash' => $password,
+			'status' => 10,
 		]);
+		if(!$user){
+			throw new UnauthorizedHttpException('You are requesting with invalid username or password.');
+		}
+		if($user->validatePassword($password)){
+			return $user;
+		}else{
+			return null;
+		}
 	}
 
 
@@ -72,7 +80,7 @@ class HttpBasicAuth extends AuthMethod
     {
         $username = $request->getAuthUser();
         $password = $request->getAuthPassword();
-		$user_ip = $request->queryParams['userIP'];
+		//$user_ip = $request->queryParams['userIP'];
 		/**
 		 * do not use below, it's api server's ip, instead of the client's ip
 		 * $user_ip = $request->getUserIP();
@@ -81,12 +89,13 @@ class HttpBasicAuth extends AuthMethod
 		 *
 		 */
 
-        if ($this->auth($username, $password)) {
+		$identity = $this->auth($username, $password);
+        if ($identity) {
             if ($username !== null || $password !== null) {
                 //$identity = call_user_func($this->auth, $username, $password);
-                $identity = $this->auth($username, $password);
                 if ($identity !== null) {
-					$identity->updateAccessToken($user_ip);
+					//$identity->updateAccessToken($user_ip);
+					$identity->updateAccessToken();
                     $user->switchIdentity($identity);
                 } else {
                     $this->handleFailure($response);
