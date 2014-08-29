@@ -4,10 +4,10 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\controller;
-use app\controllers\filters\auth\HttpBasicAuth;
+//use app\controllers\filters\auth\HttpBasicAuth;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
-use yii\web\UrlManager;
+use app\models\LoginForm2;
 //use app\controllers\filters\auth\CompositeAuth;
 //use app\controllers\filters\auth\HttpBearerAuth;
 //use app\controllers\filters\auth\QueryParamAuth
@@ -15,7 +15,29 @@ use yii\web\UrlManager;
 
 class LoginController extends Controller
 {
+	/**
+	 * this @var set to false is very important
+	 * otherwise, you'll get 400 http error when you want to request -X POST
+	 */
+	public $enableCsrfValidation = false;
+
 	public function behaviors()
+	{
+		return [
+			'verbFilter' => [
+                'class' => VerbFilter::className(),
+				'actions' => [
+					'index' => ['POST'],
+				],
+            ]
+		];
+	}
+
+	/**
+	 * for http basic auth
+	 * instead of post params auth
+	 */
+	public function behaviors2()
     {
         return [
             'access' => [
@@ -26,14 +48,27 @@ class LoginController extends Controller
 
 	public function actionIndex()
 	{
-		$id = Yii::$app->getUser()->identity->id;
-		$username = Yii::$app->getUser()->identity->username;
-		$access_token = Yii::$app->getUser()->identity->access_token;
-		$array = [
-			'id'=>$id,
-			'username'=>$username,
-			'access_token'=>$access_token,
-		];
+        $model = new LoginForm2();
+		$post_params = ['LoginForm2' => Yii::$app->request->post()];
+        if ($model->load($post_params) && $model->login()) {
+			$user = $model->getUser();
+			$user->updateAccessToken();
+
+			$id = $user->id; 
+			$username = $user->username; 
+			$access_token = $user->access_token; 
+			$array = [
+				'id'=>$id,
+				'username'=>$username,
+				'access_token'=>$access_token,
+			];
+        } else {
+			Yii::$app->getResponse()->setStatusCode(401);
+			$array = [
+				'code'=>401,
+				'msg'=>'Unauthorized, please check your username and password'
+			];
+        }
 		return json_encode($array);
 	}
 }
